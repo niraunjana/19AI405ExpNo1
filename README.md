@@ -213,7 +213,9 @@ environment.run(steps=10)
 print(environment.status)
 print(agent.performance)
 ```
+## OUTPUT:
 
+![306370405-0e780de5-71dd-4d61-a02a-a709d59c2851](https://github.com/niraunjana/19AI405ExpNo1/assets/119395610/b55274ad-c94b-4cb0-9a6f-d4295be7b350)
 
 
 
