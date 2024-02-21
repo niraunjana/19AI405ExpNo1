@@ -1,50 +1,168 @@
+
 import random
+import time
+class Thing:
+"""
+This represents any physical object that can appear in an Environment.
+def is_alive(self):
+"""Things that are 'alive' should return true."""
+return hasattr(self, "alive") and self.alive
+def show_state(self):
+"""Display the agent's internal state. Subclasses should override."
+print("I don't know how to show_state.")
 
-class HealthMonitoringAgent:
-    def __init__(self, patient_data):
-        self.patient_data = patient_data
+class Agent(Thing):
 
-    def monitor_health(self):
-        while True:
-            current_health_state = self.sensors.get_health_state()
-            action = self.choose_action(current_health_state)
-            self.actuators.perform_action(action)
-            if self.choose_action(current_health_state)=="No specific action needed":
-                break
+"""
+An Agent is a subclass of Thing """
+def init(self, program=None):
+self.alive = True
+self.performance = 0
+self.program = program
+def can_grab(self, thing):
+"""Return True if this agent can grab this thing. Override for appr
+return False
+In [8]:
+def TableDrivenAgentProgram(table):
+"""
 
-    def choose_action(self, current_health_state):
-        # Example: A simple rule-based system for decision-making
-        if current_health_state['heart_rate'] > 120:
-            return "Alert healthcare provider: High heart rate detected"
-        elif current_health_state['blood_pressure'] > 140:
-            return "Alert healthcare provider: High blood pressure detected"
-        elif current_health_state['temperature'] > 38:
-            return "Recommend rest and monitor temperature"
-        else:
-            return "No specific action needed"
+This agent selects an action based on the percept sequence. It is pract
+To customize it, provide as table a dictionary of all
+{percept_sequence:action} pairs. """
+percepts = []
 
-class HealthSensors:
-    def get_health_state(self):
-        # Example: Simulate health data retrieval (replace with real data in a practical scenario)
-        return {
-            'heart_rate': random.randint(60, 150),
-            'blood_pressure': random.randint(90, 160),
-            'temperature': random.uniform(36.0, 38.5)
-        }
+def program(percept):
+action = None
+percepts.append(percept)
+action = table.get(tuple(percepts))
+return action
+return program
 
-class HealthActuators:
-    def perform_action(self, action):
-        # Example: Print or log the action (in a real scenario, this might involve more complex actions)
-        print(action)
+loc_A, loc_B = (0,0), (1,0) # The two locations for the Vaccum cleaning
 
-if __name__ == "__main__":
-    patient_data = {'patient_id': 123, 'name': 'John Doe', 'age': 35}
-    
-    health_sensors = HealthSensors()
-    health_actuators = HealthActuators()
-    
-    health_monitoring_agent = HealthMonitoringAgent(patient_data)
-    health_monitoring_agent.sensors = health_sensors
-    health_monitoring_agent.actuators = health_actuators
-    
-    health_monitoring_agent.monitor_health()
+def TableDrivenVaccumAgent():
+"""
+Tabular approach towards Vaccum cleaning
+"""
+
+table = {
+((loc_A, "Clean"),): "Right",
+((loc_A, "Dirty"),): "Suck",
+((loc_B, "Clean"),): "Left",
+((loc_B, "Dirty"),): "Suck",
+((loc_A, "Dirty"), (loc_A, "Clean")): "Right",
+((loc_A, "Clean"), (loc_B, "Dirty")): "Suck",
+((loc_B, "Clean"), (loc_A, "Dirty")): "Suck",
+20/02/2024, 22:25 VACCUM-Copy1
+localhost:8888/nbconvert/html/Downloads/VACCUM-Copy1.ipynb?download=false 2/4
+((loc_B, "Dirty"), (loc_B, "Clean")): "Left",
+((loc_A, "Dirty"), (loc_A, "Clean"), (loc_B, "Dirty")): "Suck",
+((loc_B, "Dirty"), (loc_B, "Clean"), (loc_A, "Dirty")): "Suck",
+}
+return Agent(TableDrivenAgentProgram(table))
+
+class Environment:
+"""Abstract class representing an Environment. 'Real' Environment classe
+percept: Define the percept that an agent sees. execute_action: Def
+Also update the agent.performance slot.
+The environment keeps a list of .things and .agents (which is a subset
+Each thing has a .location slot, even though some environments may not
+def init(self):
+self.things = []
+self.agents = []
+
+def percept(self, agent):
+"""Return the percept that the agent sees at this point. (Implement
+raise NotImplementedError
+def execute_action(self, agent, action):
+"""Change the world to reflect this action. (Implement this.)"""
+raise NotImplementedError
+def default_location(self, thing):
+"""Default location to place a new thing with unspecified location.
+return None
+def is_done(self):
+"""By default, we're done when we can't find a live agent."""
+return not any(agent.is_alive() for agent in self.agents)
+def step(self):
+"""Run the environment for one time step. If the
+actions and exogenous changes are independent, this method will do.
+if not self.is_done():
+actions = []
+for agent in self.agents:
+if agent.alive:
+actions.append(agent.program(self.percept(agent)))
+else:
+actions.append("")
+for (agent, action) in zip(self.agents, actions):
+self.execute_action(agent, action)
+def run(self, steps=1000):
+"""Run the Environment for given number of time steps."""
+for step in range(steps):
+if self.is_done():
+return
+self.step()
+def add_thing(self, thing, location=None):
+"""Add a thing to the environment, setting its location. For conven
+if not isinstance(thing, Thing):
+thing = Agent(thing)
+if thing in self.things:
+print("Can't add the same thing twice")
+else:
+thing.location = (location if location is not None else self.de
+self.things.append(thing)
+if isinstance(thing, Agent):
+20/02/2024, 22:25 VACCUM-Copy1
+localhost:8888/nbconvert/html/Downloads/VACCUM-Copy1.ipynb?download=false 3/4
+thing.performance = 0
+self.agents.append(thing)
+def delete_thing(self, thing):
+"""Remove a thing from the environment."""
+try:
+
+self.things.remove(thing)
+except ValueError as e:
+print(e)
+print(" in Environment delete_thing")
+print(" Thing to be removed: {} at {}".format(thing, thing.locat
+print(" from list: {}".format([(thing, thing.location) for thing
+if thing in self.agents:
+self.agents.remove(thing)
+
+class TrivialVaccumEnvironment(Environment):
+"""This environment has two locations, A and B. Each can be clean or di
+def init(self):
+super().init()
+#loc_A, loc_B = (0,0), (1,0) # The two locations for the Vaccum clea
+self.status = {loc_A: random.choice(["Clean", "Dirty"]), loc_B: rand
+def thing_classes(self):
+return [TableDrivenVaccumAgent]
+def percept(self, agent):
+"""Returns the agent's location, and the location status (Dirty/Cle
+return agent.location, self.status[agent.location]
+def execute_action(self, agent, action):
+"""Change agent's location and/or location's status; track performa
+if action == "Right":
+agent.location = loc_B
+agent.performance -= 1
+elif action == "Left":
+agent.location = loc_A
+agent.performance -= 1
+elif action == "Suck":
+
+if self.status[agent.location] == "Dirty":
+agent.performance += 10
+self.status[agent.location] = "Clean"
+def default_location(self, thing):
+
+return random.choice([loc_A, loc_B])
+
+if name == "main":
+
+agent = TableDrivenVaccumAgent()
+environment = TrivialVaccumEnvironment()
+#print(environment)
+environment.add_thing(agent)
+print(environment.status)
+environment.run(steps=10)
+print(environment.status)
+print(agent.performance)
