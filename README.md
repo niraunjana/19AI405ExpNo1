@@ -1,8 +1,8 @@
-<h1>ExpNo 1 :Developing AI Agent with PEAS Description</h1>
-<h3>Name: NIRAUNJANA GAYATHRI G R</h3>
-<h3>Register Number: 212222230096</h3>
-
-
+# ExpNo 1 :Developing AI Agent with PEAS Description
+```
+Name: NIRAUNJANA GAYATHRI G R
+Register Number: 212222230096
+```
 <h3>AIM:</h3>
 <br>
 <p>To find the PEAS description for the given AI problem and develop an AI agent.</p>
