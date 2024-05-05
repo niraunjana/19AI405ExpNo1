@@ -4,9 +4,7 @@ Name: NIRAUNJANA GAYATHRI G R
 Register Number: 212222230096
 ```
 <h3>AIM:</h3>
-<br>
-<p>To find the PEAS description for the given AI problem and develop an AI agent.</p>
-<br>
+To find the PEAS description for the given AI problem and develop an AI agent.
 <h3>Theory</h3>
 <h3>Vacuum Cleaner agent:</h3>
 <p>Vaccum Cleaner agent:
